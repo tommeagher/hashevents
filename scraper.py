@@ -3,6 +3,7 @@ from BeautifulSoup import BeautifulSoup
 from local_settings import *
 from settings import *
 
+#function to grab real urls and page titles
 def get_title(url):
     response=urllib2.urlopen(url)
     html=response.read()
@@ -11,7 +12,7 @@ def get_title(url):
     realurl=response.geturl()
     return title, realurl
 
-#import the twitter module and the twitter api keys 
+#import the twitter module and instantiate the twitter api keys 
 api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
                       consumer_secret=MY_CONSUMER_SECRET,
                       access_token_key=MY_ACCESS_TOKEN_KEY,
@@ -19,17 +20,20 @@ api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
                       
 #connect and authenticate with the api
 #print api.VerifyCredentials()
- 
+
+#connect to the MySQL db 
 db = MySQLdb.connect(host=MYSQL_HOST, user=MYSQL_USER, passwd=MYSQL_PASS, db=MYSQL_DB)
  
 #create a cursor for the select
 cur = db.cursor()
 
+#Create the table name based on the hashtag in local_settings.py
 if HASHTAG[0]=="#":
     tablename=HASHTAG[1:]
 else: 
     tablename=HASHTAG
 
+#Does the table already exist? If not, create it.
 try:
     cur.execute('select * from %s.%s;' % (MYSQL_DB, tablename))
 except:
@@ -38,7 +42,6 @@ db.commit()
 
 #query the database. If it's empty, use "None" for since_id
 #if the db has items in it, grab the last one and its id and use that for since_id
-#How to translate the 1L
 cur.execute('select max(twitid) from %s.%s;' % (MYSQL_DB, tablename))
 sinceid=cur.fetchone()
 if sinceid[0]==None:
@@ -46,20 +49,20 @@ if sinceid[0]==None:
 else:
     sinceid=sinceid[0]
 
-#start at pagenum=1, if the len of results is 100, then try it with pagenum=2. Try a while? 
 pagenum=1 
  
 results = api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
 length = len(results)
 
+#start at pagenum=1, if the len of results is 100, then try it with pagenum=2, and so on.
 while length>99:
     pagenum=pagenum+1
     newres=api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
     results=results+newres
     length=len(newres)
-
 #newresultslen = len(results)
 
+#loop through each result Status object and grab these items, assign them to variables.
 for result in results:
     created_at=str(result.created_at)
     twitid=str(result.id)
@@ -74,6 +77,7 @@ for result in results:
     user_description=result_user.description.encode("utf8")
     retweeted=str(result.retweeted)
     retweet_count=str(result.retweet_count)
+    #take the text and search out any URLs that might be hiding in there.
     earls = re.findall(r'(https?://\S+)', twittext)
     earls_len=len(earls)
     if earls_len>0:
@@ -105,10 +109,11 @@ for result in results:
         tweeturl2, tweeturltitle2 = None, None
         tweeturl3, tweeturltitle3 = None, None
         tweeturl4, tweeturltitle4 = None, None
-                
+    #assign all of the variables to a tuple                
     treble = (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count)
-
-    cur.execute('INSERT INTO `NICAR13` (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count) VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)' , treble)
+    #Can't get the tablename variable to work in the insert statement, because of the extra single quotes for a string, so had to hard code it.
+    #If you change this for other event hashtags, be sure to change the tablename here. Haven't figured out how to get that variable to work properly in query.
+    cur.execute("""INSERT INTO `NICAR13` (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count) VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)""" , treble)
     db.commit()
     
 print "Done"
