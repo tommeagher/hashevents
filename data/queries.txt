@@ -1,0 +1,19 @@
+select count(tweeturl), tweeturl, tweeturltitle
+from (
+select ID, tweeturl1 as tweeturl, tweeturltitle1 as tweeturltitle from NICAR13 as n1
+UNION
+select ID, tweeturl2 as tweeturl, tweeturltitle2 as tweeturltitle from NICAR13 as n2
+UNION 
+select ID, tweeturl3 as tweeturl, tweeturltitle3 as tweeturltitle from NICAR13 as n3
+UNION
+select ID, tweeturl4 as tweeturl, tweeturltitle4 as tweeturltitle from NICAR13 as n4) as n5
+Group by tweeturl
+order by 1 desc;
+
+
+
+select count(user_id), user_screen_name, user_name, user_location
+from nicar13
+group by user_id
+order by 1 desc;
+

@@ -10,7 +10,7 @@ def get_title(url):
     soup=BeautifulSoup(html)
     title=soup.title.text
     realurl=response.geturl()
-    return title, realurl
+    return realurl, title
 
 #import the twitter module and instantiate the twitter api keys 
 api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
@@ -61,6 +61,9 @@ while length>99:
     results=results+newres
     length=len(newres)
 #newresultslen = len(results)
+
+#sort the results from lowest (oldest id) to highest
+results=sorted(results, key=lambda result: result.id)   
 
 #loop through each result Status object and grab these items, assign them to variables.
 for result in results:
