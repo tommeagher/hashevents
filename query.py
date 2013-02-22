@@ -5,26 +5,32 @@ from settings import *
 
 def queried():
 
+    from settings import JSONID
     #connect to the MySQL db 
     db = MySQLdb.connect(host=MYSQL_HOST, user=MYSQL_USER, passwd=MYSQL_PASS, db=MYSQL_DB)
  
     #create a cursor for the select
     cur = db.cursor()
-
+    
+#    TABLESTARTID=settings.TABLESTARTID
+    
+    if JSONID==None:
+        JSONID=0
+    else:
+        JSONID=JSONID
+    
     cur.execute("""
             select count(tweeturl) as count, tweeturl, tweeturltitle
               from (
-              select ID, tweeturl1 as tweeturl, tweeturltitle1 as tweeturltitle from NICAR13 as n1
+              select ID, tweeturl1 as tweeturl, tweeturltitle1 as tweeturltitle from NICAR13 as n1 where twitid > %s 
               UNION  
-              select ID, tweeturl2 as tweeturl, tweeturltitle2 as tweeturltitle from NICAR13 as n2
+              select ID, tweeturl2 as tweeturl, tweeturltitle2 as tweeturltitle from NICAR13 as n2 where twitid >%s
               UNION 
-              select ID, tweeturl3 as tweeturl, tweeturltitle3 as tweeturltitle from NICAR13 as n3
+              select ID, tweeturl3 as tweeturl, tweeturltitle3 as tweeturltitle from NICAR13 as n3 where twitid >%s
               UNION
-              select ID, tweeturl4 as tweeturl, tweeturltitle4 as tweeturltitle from NICAR13 as n4) as n5
+              select ID, tweeturl4 as tweeturl, tweeturltitle4 as tweeturltitle from NICAR13 as n4 where twitid >%s) as n5
               Group by tweeturl
-              order by 1 desc
-
-            """)
+              order by 1 desc;""" , (JSONID, JSONID, JSONID, JSONID))
 
     rows1 = cur.fetchall()
 
@@ -42,10 +48,11 @@ def queried():
     cur.execute("""
             select count(user_id) as count, user_screen_name, user_name, user_location
             from nicar13
+            where twitid > %s
             group by user_id
-            order by 1 desc
+            order by 1 desc;
 
-            """)
+            """ % JSONID)
 
     rows2 = cur.fetchall()
     updated = datetime.now()
