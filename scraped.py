@@ -72,7 +72,7 @@ def scraped():
         twitid=str(result.id)
         source=str(result.source)
         twittext=result.text.encode("utf8")
-        user_screen_name=str(result.user.screen_name)
+        user_screen_name=str(result.user.screen_name).encode("utf8")
         result_user=api.GetUser(user_screen_name)
         user_id=str(result_user.id)
         user_name=result_user.name.encode("utf8")

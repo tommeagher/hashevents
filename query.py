@@ -41,7 +41,7 @@ def queried():
         t = (row[0], row[1], row[2])
         rowarray_list.append(t) 
     j = json.dumps(rowarray_list)
-    rowarrays_file = 'data/earlarrays.js'
+    rowarrays_file = 'data/earlarrays.json'
     f = open(rowarrays_file,'w')
     print >> f, j
 
@@ -78,7 +78,7 @@ def queried():
         objects_list.append(d)
  
     j = json.dumps(objects_list)
-    objects_file = 'data/tweeps_objects.js'
+    objects_file = 'data/tweeps_objects.json'
     f = open(objects_file,'w')
     print >> f, j
 
