@@ -47,7 +47,7 @@ def queried():
 
     cur.execute("""
             select count(user_id) as count, user_screen_name, user_name, user_location
-            from nicar13
+            from NICAR13
             where twitid > %s
             group by user_id
             order by 1 desc;
