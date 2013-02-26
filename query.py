@@ -38,11 +38,12 @@ def queried():
  
     rowarray_list = []
     for row in rows1:
-        t = (row[0], row[1], row[2])
+        t = (row[0], '<a href="'+str(row[1])+'" target="_parent">'+str(row[1])+'</a>', row[2])
         rowarray_list.append(t) 
     j = json.dumps(rowarray_list)
-    rowarrays_file = 'data/earlarrays.json'
+    rowarrays_file = '%s/earlarrays.json' % DATA_DIR
     f = open(rowarrays_file,'w')
+    print >> f, "var earlarrays = "
     print >> f, j
 
     cur.execute("""
@@ -61,7 +62,7 @@ def queried():
         min="0"+min
     else:
         min=min
-    time=str(updated.hour)+":"+min
+    time=str(updated.hour+1)+":"+min
     day=str(updated.month)+"/"+str(updated.day)+"/"+str(updated.year)
     # Convert query to row arrays
  
@@ -72,14 +73,15 @@ def queried():
         d['updtime']=time
         d['updday']= day
         d['count'] = row[0]
-        d['user_screen_name'] = "@"+row[1]
+        d['user_screen_name'] = '<a href="http://www.twitter.com/'+row[1]+'" target="_parent">'+'@'+row[1]+'</a>'
         d['user_name'] = row[2]
         d['user_location']=row[3]
         objects_list.append(d)
  
     j = json.dumps(objects_list)
-    objects_file = 'data/tweeps_objects.json'
+    objects_file = '%s/tweeps_objects.json' % DATA_DIR
     f = open(objects_file,'w')
+    print >> f, "var tweeps = "
     print >> f, j
 
 

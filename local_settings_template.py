@@ -9,4 +9,5 @@ MYSQL_DB=""
 MYSQL_USER=""
 MYSQL_PASS=""
 
+DATA_DIR=""
 #DATABASE = 'hashevents.db'
