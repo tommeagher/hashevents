@@ -32,6 +32,7 @@ def queried():
               UNION
               select ID, tweeturl4 as tweeturl, tweeturltitle4 as tweeturltitle from NICAR13 as n4 where twitid >%s) as n5
               Group by tweeturl
+              Having count(tweeturl)>0
               order by 1 desc;""" , (JSONID, JSONID, JSONID, JSONID))
     #You've got to fetch the results of the query.
     rows1 = cur.fetchall()
@@ -41,7 +42,8 @@ def queried():
     for row in rows1:
         #adding the html here so that the URLs are clickable and jump out of the iframe.
         #TODO is this where I'll decode? Test it.
-        t = (row[0], '<a href="'+str(row[1])+'" target="_parent">'+str(row[1])+'</a>', row[2])
+        t = (row[0], '<a href="'+str(row[1])+'" target="_parent">'+str(row[1])+'</a>', row[2].decode("utf-8", "ignore"))
+        #print t
         rowarray_list.append(t) 
     j = json.dumps(rowarray_list)
     #use environment variable from local_settings.py to dictate where the JSON is deposited.
@@ -73,7 +75,7 @@ def queried():
     time=str(updated.hour+1)+":"+min
     day=str(updated.month)+"/"+str(updated.day)+"/"+str(updated.year)
     # Convert query to key:value row arrays
-     objects_list = []
+    objects_list = []
     for row in rows2:
         d = collections.OrderedDict()
         d['updtime']=time
