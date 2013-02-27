@@ -1,0 +1,158 @@
+<!doctype html>
+<head>
+<title>The URLs of #NICAR13</title>
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="../css/bootstrap-responsive.css">
+<script src="data/earlarrays.json"></script>
+<style type="text/css">
+
+      /* Sticky footer styles
+      -------------------------------------------------- */
+      html,
+      body {
+        height: 100%;
+        /* The html and body elements cannot have any padding or margin. */
+      }
+
+      /* Wrapper for page content to push down footer */
+      #wrap {
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        /* Negative indent footer by it's height */
+        margin: 0 auto -60px;
+      }
+
+      /* Set the fixed height of the footer here */
+      #push,
+      #footer {
+        height: 60px;
+      }
+      #footer {
+        background-color: #fffffff;
+      }
+
+      /* Lastly, apply responsive CSS fixes as necessary */
+      @media (max-width: 767px) {
+        #footer {
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+    </style>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-34928675-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+
+
+<link rel="stylesheet" href="data/lib/css/mapTable.css" />
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script src="data/lib/js/underscore-min.js"></script>
+<script src="data/lib/js/backbone-min.js"></script>
+<script src="data/lib/js/thunderdome.js"></script>
+
+<script type="text/javascript">
+//google visualization libs we need
+google.load('visualization', '1.1', {packages: ['controls','table']});
+</script>
+
+<script>
+//config for the datagrid
+var tableConfig = new Thunderdome.tableConfig({
+	//IDs of divs where pieces will go
+	mainDiv: 		'gridContainer',
+//	searchDiv: 		'searchField',
+	tableDiv: 		'dfm',
+	showSearch:		true, //do we want a search field?
+	showCategory:	false, //do we want a pulldown to filter the results?
+	showMap:		false,
+	//table header config
+	//'label' is what shows in that column head
+	//'type' is the data type (used for sorting, etc.)
+	//TODO: try to abstract this to make config simpler
+	tableHeader:	[
+						{'label': 'Tweets', 'type': 'number'},
+						{'label': 'URL', 'type': 'URL'},
+						{'label': 'Title', 'type': 'string'}
+
+					],
+					
+	//fields from JSON data we want to show in table
+	//for example {'Site': 'Example Site', 'State': 'CA', 'MNG/JRC','Another Field': 'Some data'}
+	//would only show data from Site, State and MNG/JRC
+	tableCols:		[0,1,2],
+
+	//table column we want search field to filter
+	//should be name of the label in tableHeader above
+	fieldToSearch: 	'Title',
+	categoryToFilter: 	'Division',
+
+	searchLabel:	'Search Titles', //label text added to search field
+	categoryLabel:	'Filter by division', //label text added to category dropdown
+	searchCSSClass:	'searchFieldText', //css applied to search field text
+	categoryCSSClass:	'categoryFilterText', //css applied to category dropdown text
+	headerCSSClass:	'', //css applied to header
+	rowCSSClass:	'' //css applied to rows
+});
+
+
+//callback function that draws the grid
+var drawGrid = function() {
+	var collection;
+	//this uses some code I cribbed from d3 to convert CSV into JSON.
+	//If your data is already in JSON or you're fetching it via JSONP, just pass it to
+	//to Backbone.Collection as noted below
+
+		collection = new Backbone.Collection(earlarrays); //here's where we're passing the data
+		Thunderdome.data = collection;
+		Thunderdome.tableConfig = tableConfig;
+		var theTable = Thunderdome.makeDataTable();
+
+}
+
+
+//we need to wait till all the google libraries are ready, then fire the callback
+google.setOnLoadCallback(drawGrid);
+</script>
+
+</head>
+
+
+<body>
+<div class="row">
+<div class="span1"></div>
+
+<div class="span10">  
+	<div id="container">
+		<div id="gridContainer" class="floatLeft gridContainer">
+			<div id="searchField" style="float:left;"></div>
+			<div id="filterCategory"></div>
+			<div id="dfm" class="tableContainer clearBoth"></div>
+		</div>
+	</div>
+
+	</div>
+
+
+</div>
+<div class="span1"></div></div>
+</body>
+</html>
+
+
