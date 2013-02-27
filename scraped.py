@@ -3,7 +3,7 @@ from BeautifulSoup import BeautifulSoup
 from local_settings import *
 from settings import *
 
-#function to grab real urls and page titles
+#function to grab real urls and page titles from link shorteners or other URLs
 def get_title(url):
     response=urllib2.urlopen(url)
     html=response.read()
@@ -12,21 +12,21 @@ def get_title(url):
     realurl=response.geturl()
     return realurl, title
 
-def scraped():
-    
+#function to connect to the MySQL database, grab the newest tweet in it, then query the Twitter API for everything after that. Then it cycles through those tweets and dumps them into the db for later.
+def scraped():    
     #import the twitter module and instantiate the twitter api keys 
     api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
                           consumer_secret=MY_CONSUMER_SECRET,
                           access_token_key=MY_ACCESS_TOKEN_KEY,
                           access_token_secret=MY_ACCESS_TOKEN_SECRET)
                       
-    #connect and authenticate with the api
+    #If you need to test the connection, this will confirm the authentication with the api
     #print api.VerifyCredentials()
 
-    #connect to the MySQL db 
+    #connect to the MySQL db, using the environment variables from local_settings.py
     db = MySQLdb.connect(host=MYSQL_HOST, user=MYSQL_USER, passwd=MYSQL_PASS, db=MYSQL_DB)
  
-    #create a cursor for the select
+    #create a cursor that you can use for SQL queries
     cur = db.cursor()
 
     #Create the table name based on the hashtag in local_settings.py
@@ -42,8 +42,8 @@ def scraped():
         cur.execute('create table %s (id integer primary key auto_increment, created_at text not null, twitid bigint not null, source text null, twittext text not null, tweeturl1 text null, tweeturltitle1 text null, tweeturl2 text null, tweeturltitle2 text null, tweeturl3 text null, tweeturltitle3 text null, tweeturl4 text null, tweeturltitle4 text null, user_id bigint not null, user_screen_name text not null, user_name text not null, user_location text null, user_url text null, user_description text null, retweeted text null, retweet_count text null);' % tablename)
     db.commit()
 
-    #query the database. If it's empty, use "None" for since_id
-    #if the db has items in it, grab the last one and its id and use that for since_id
+    #query the database. If it's empty, use "None" for since_id, thus grabbing everything in the Twitter API with that hashtag, back about a week.    
+    #if the db has records in it, grab the last one and its id and use that for sinceid
     cur.execute('select max(twitid) from %s.%s;' % (MYSQL_DB, tablename))
     sinceid=cur.fetchone()
     if sinceid[0]==None:
@@ -53,6 +53,7 @@ def scraped():
 
     pagenum=1 
  
+    #In order to grab all the tweets in chronological order, you have to use "recent" so it's not mixing in "popular tweets"
     results = api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
     length = len(results)
 
@@ -81,9 +82,10 @@ def scraped():
         user_description=result_user.description.encode("utf8")
         retweeted=str(result.retweeted)
         retweet_count=str(result.retweet_count)
-        #take the text and search out any URLs that might be hiding in there.
+        #take the text and use the re (regex) module to search out any URLs that might be hiding in there.
         earls = re.findall(r'(https?://\S+)', twittext)
         earls_len=len(earls)
+        #So far, I haven't found a tweet with even 2 URLs, apparently building for up to 4 URLs was overkill. But I guess better to be prepared, right?
         if earls_len>0:
             try:
                 if earls_len==1:
@@ -116,7 +118,7 @@ def scraped():
         #assign all of the variables to a tuple                
         treble = (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count)
         #Can't get the tablename variable to work in the insert statement, because of the extra single quotes for a string, so had to hard code it.
-        #If you change this for other event hashtags, be sure to change the tablename here. Haven't figured out how to get that variable to work properly in query.
+        #If you change this for other event hashtags, be sure to change the tablename here.
         cur.execute("""INSERT INTO `NICAR13` (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count) VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)""" , treble)
         db.commit()
     
