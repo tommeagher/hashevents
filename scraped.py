@@ -1,11 +1,11 @@
-import twitter, MySQLdb, urllib2, re
+import twitter, MySQLdb, urllib, re
 from BeautifulSoup import BeautifulSoup
 from local_settings import *
 from settings import *
 
 #function to grab real urls and page titles from link shorteners or other URLs
 def get_title(url):
-    response=urllib2.urlopen(url)
+    response=urllib.urlopen(url)
     html=response.read()
     soup=BeautifulSoup(html)
     title=soup.title.text.encode("utf-8")
@@ -56,6 +56,7 @@ def scraped():
     #In order to grab all the tweets in chronological order, you have to use "recent" so it's not mixing in "popular tweets"
     results = api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
     length = len(results)
+
 
     #start at pagenum=1, if the len of results is 100, then try it with pagenum=2, and so on.
     while length>99:
