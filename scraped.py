@@ -1,19 +1,44 @@
-import twitter, MySQLdb, urllib, re
+import twitter, MySQLdb, urllib2, urllib, re, csv, sys
 from BeautifulSoup import BeautifulSoup
 from local_settings import *
 from settings import *
+from datetime import datetime
+import csv, sys
 
 #function to grab real urls and page titles from link shorteners or other URLs
 def get_title(url):
     response=urllib.urlopen(url)
-    html=response.read()
-    soup=BeautifulSoup(html)
-    title=soup.title.text.encode("utf-8")
     realurl=response.geturl()
+#the rare error of someone tweeting a direct link to a jpg
+    if realurl[-5:-1]==".jpe" or realurl[-4:-1]==".jp":
+        title = "Probably a picture of a cat"            
+    else:
+#set the headers for the request if needed    
+        header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+            'Accept-Encoding': '*',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Connection': 'keep-alive'}
+#make another request with headers to the destination page of any link that had used a t.co or other shortener
+        req=urllib2.Request(realurl, headers=header)
+        response2 = urllib2.urlopen(req)
+#first try to soupify the response with the headers.
+        try: 
+            html=response2.read()
+            soup=BeautifulSoup(html)
+            title=soup.title.text.encode("utf-8")
+#if that fails, try the response without the headers, such as pictures tweeted within twitter. 
+        except:
+            html=response.read()
+            soup=BeautifulSoup(html)
+            title=soup.title.text.encode("utf-8")
     return realurl, title
-
+    
 #function to connect to the MySQL database, grab the newest tweet in it, then query the Twitter API for everything after that. Then it cycles through those tweets and dumps them into the db for later.
 def scraped():    
+    filename = ('errors.csv')
+
     #import the twitter module and instantiate the twitter api keys 
     api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
                           consumer_secret=MY_CONSUMER_SECRET,
@@ -86,7 +111,6 @@ def scraped():
         #take the text and use the re (regex) module to search out any URLs that might be hiding in there.
         earls = re.findall(r'(https?://\S+)', twittext)
         earls_len=len(earls)
-        #So far, I haven't found a tweet with even 2 URLs, apparently building for up to 4 URLs was overkill. But I guess better to be prepared, right?
         if earls_len>0:
             try:
                 if earls_len==1:
@@ -109,20 +133,33 @@ def scraped():
                     tweeturl2, tweeturltitle2 = get_title(earls[1])
                     tweeturl3, tweeturltitle3 = get_title(earls[2])
                     tweeturl4, tweeturltitle4 = get_title(earls[3])
-            except: 
-                continue
+            except:
+            #catching the errors in a csv file so I can go back and examine why it's throwing errors later
+            #don't just fail silently, keep a log of failed tweets and then we can go back and figure why
+                errors=[]
+
+                now=datetime.now()
+                mistake=sys.exc_info()                
+                row = [ now, twittext, twitid, mistake ]
+                errors.append(row)                
+                with open(filename, 'a') as errorfile:
+                    wtr = csv.writer(errorfile, delimiter='|')
+                    wtr.writerows(errors)
         else: 
             tweeturl1, tweeturltitle1 = None, None
             tweeturl2, tweeturltitle2 = None, None
             tweeturl3, tweeturltitle3 = None, None
             tweeturl4, tweeturltitle4 = None, None
         #assign all of the variables to a tuple
-        #print twittext                
+#        print twittext                
         treble = (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count)
         #print treble
         #Can't get the tablename variable to work in the insert statement, because of the extra single quotes for a string, so had to hard code it.
         #If you change this for other event hashtags, be sure to change the tablename here.
         cur.execute("""INSERT INTO `NICAR13` (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count) VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)""" , treble)
         db.commit()
+        
     
+
+
     return "Done"
