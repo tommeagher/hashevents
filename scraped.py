@@ -3,7 +3,6 @@ from BeautifulSoup import BeautifulSoup
 from local_settings import *
 from settings import *
 from datetime import datetime
-import csv, sys
 
 #function to grab real urls and page titles from link shorteners or other URLs
 def get_title(url):
