@@ -9,7 +9,7 @@ import csv, sys
 def get_title(url):
     response=urllib.urlopen(url)
     realurl=response.geturl()
-#the rare error of someone tweeting a direct link to a jpg
+    #the rare error of someone tweeting a direct link to a jpg
     if realurl[-5:-1]==".jpe" or realurl[-4:-1]==".jp":
         title = "Probably a picture of a cat"            
     else:
@@ -20,15 +20,15 @@ def get_title(url):
             'Accept-Encoding': '*',
             'Accept-Language': 'en-US,en;q=0.8',
             'Connection': 'keep-alive'}
-#make another request with headers to the destination page of any link that had used a t.co or other shortener
+        #make another request with headers to the destination page of any link that had used a t.co or other shortener
         req=urllib2.Request(realurl, headers=header)
         response2 = urllib2.urlopen(req)
-#first try to soupify the response with the headers.
+        #first try to soupify the response2 from request with the headers.
         try: 
             html=response2.read()
             soup=BeautifulSoup(html)
             title=soup.title.text.encode("utf-8")
-#if that fails, try the response without the headers, such as pictures tweeted within twitter. 
+        #if that fails, try the response without the headers, such as pictures tweeted within twitter. 
         except:
             html=response.read()
             soup=BeautifulSoup(html)
