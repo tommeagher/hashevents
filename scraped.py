@@ -150,7 +150,7 @@ def scraped():
             tweeturl3, tweeturltitle3 = None, None
             tweeturl4, tweeturltitle4 = None, None
         #assign all of the variables to a tuple
-#        print twittext                
+        #print twittext                
         treble = (created_at, twitid, source, twittext, tweeturl1, tweeturltitle1, tweeturl2, tweeturltitle2, tweeturl3, tweeturltitle3, tweeturl4, tweeturltitle4, user_id, user_screen_name, user_name, user_location, user_url, user_description, retweeted, retweet_count)
         #print treble
         #Can't get the tablename variable to work in the insert statement, because of the extra single quotes for a string, so had to hard code it.
