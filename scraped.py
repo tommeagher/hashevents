@@ -11,6 +11,8 @@ def get_title(url):
     #the rare error of someone tweeting a direct link to a jpg
     if realurl[-5:-1]==".jpe" or realurl[-4:-1]==".jp":
         title = "Probably a picture of a cat"            
+    elif realurl[-4:-1]==".pd":
+        title = "A PDF!"
     else:
 #set the headers for the request if needed    
         header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -31,7 +33,10 @@ def get_title(url):
         except:
             html=response.read()
             soup=BeautifulSoup(html)
-            title=soup.title.text.encode("utf-8")
+            if soup.title==None:
+                title="None"
+            else: 
+                title=soup.title.text.encode("utf-8")
     return realurl, title
     
 #function to connect to the MySQL database, grab the newest tweet in it, then query the Twitter API for everything after that. Then it cycles through those tweets and dumps them into the db for later.
