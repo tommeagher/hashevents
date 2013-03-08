@@ -22,10 +22,10 @@ def get_title(url):
             'Accept-Language': 'en-US,en;q=0.8',
             'Connection': 'keep-alive'}
         #make another request with headers to the destination page of any link that had used a t.co or other shortener
-        req=urllib2.Request(realurl, headers=header)
-        response2 = urllib2.urlopen(req)
-        #first try to soupify the response2 from request with the headers.
         try: 
+            req=urllib2.Request(realurl, headers=header)
+            response2 = urllib2.urlopen(req)
+            #first try to soupify the response2 from request with the headers.
             html=response2.read()
             soup=BeautifulSoup(html)
             title=soup.title.text.encode("utf-8")
