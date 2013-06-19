@@ -1,7 +1,7 @@
 BeautifulSoup==3.2.1
 MySQL-python==1.2.4
-httplib2==0.7.7
+httplib2==0.8
 oauth2==1.5.211
-python-twitter==0.8.6
-simplejson==3.0.7
+python-twitter==1.0
+simplejson==3.3.0
 wsgiref==0.1.2

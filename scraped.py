@@ -83,14 +83,14 @@ def scraped():
     pagenum=1 
  
     #In order to grab all the tweets in chronological order, you have to use "recent" so it's not mixing in "popular tweets"
-    results = api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
+    results = api.GetSearch(term=HASHTAG, count=100, since_id=sinceid, page=pagenum, result_type="recent")
     length = len(results)
 
 
     #start at pagenum=1, if the len of results is 100, then try it with pagenum=2, and so on.
     while length>99:
         pagenum=pagenum+1
-        newres=api.GetSearch(term=HASHTAG, per_page=100, since_id=sinceid, page=pagenum, result_type="recent")
+        newres=api.GetSearch(term=HASHTAG, count=100, since_id=sinceid, page=pagenum, result_type="recent")
         results=results+newres
         length=len(newres)
 
