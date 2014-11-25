@@ -1,3 +1,6 @@
+*This repo is no longer being actively supported, or even inactively supported for that matter. I'll leave it here as an amusing relic of how I tried to learn new technologies (APIs, MySQL, Python, JS) on a starter project* 
+
+
 hashevents
 ==========
 
@@ -19,7 +22,7 @@ There are two html files that fairly clunkily ingest the JSON feeds and displays
 ##Configuration
 I tried to build this to make it as reusable as possible. To that end, there are several local_settings variables that you can adjust that will handle most of the configuration for you.
 
-Because of its use of the collections module, this script requires that you use Python 2.7. It also makes extensive use of the python-twitter (imported as "twitter") and MySQL-python (imported as "MySQLdb") modules. They have their own dependencies, but if you pip install each of them, it should take care of itself. Finally, the script uses BeautifulSoup to handle the extraction of the text of a web page's <title> tag.
+Because of its use of the collections module, this script requires that you use Python 2.7. It also makes extensive use of the python-twitter (imported as "twitter") and MySQL-python (imported as "MySQLdb") modules. They have their own dependencies, but if you pip install each of them, it should take care of itself. Finally, the script uses BeautifulSoup to handle the extraction of the text of a web page's ``<title>`` tag.
 
 One thing that (currently) needs some hand-holding is the insertion of the individual tweets into the database. If you look in the scraped.py file, you'll see a note where the table name needs to be manually configured there. I ran out of time to fix that and hope TODO it in the future.
 
