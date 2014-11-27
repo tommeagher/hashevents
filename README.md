@@ -1,4 +1,4 @@
-*This repo is no longer being actively supported, or even inactively supported for that matter. I'll leave it here as an amusing relic of how I tried to learn new technologies (APIs, MySQL, Python, JS) on a starter project* 
+*This repo is no longer being actively supported, or even inactively supported for that matter. With [Twitter's new complete index](https://twitter.com/search-advanced), you can search for tweets [from #NICAR11](https://twitter.com/search?f=realtime&q=%23nicar11%20from%3Aultracasual&src=typd) or whatever hashtag you want with ease. I'll leave it here as an amusing relic of how I tried to learn new technologies (APIs, MySQL, Python, JS) on a starter project* 
 
 
 hashevents
